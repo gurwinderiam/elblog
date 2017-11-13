@@ -27,6 +27,11 @@
   :group 'elblog
   :type 'string)
 
+(defcustom elblog-index-page-size 5
+  "Number of articles to show per index page"
+  :group 'elblog
+  :type 'integer)
+
 (defcustom elblog-article-directory nil
   "Directory in which elblog articles are stored"
   :group 'elblog
@@ -57,6 +62,19 @@
   (setq org-html-style-default (f-read-text "blog.css"))
   (setq org-html-preamble-format `(("en" ,(template-preamble))))
   (setq org-html-postamble-format `(("en" ,(f-read-text "postamble.html")))))
+
+;; Index generation functions
+
+(defun elblog-get-index-page (page-num)
+  "Get the articles for the (0-indexed!) index page."
+  (message "n")
+  (->> (ht-keys elblog-articles)
+       (-drop (* page-num elblog-index-page-size))
+       (-take elblog-index-page-size)))
+
+(defun elblog-render-index (page-num)
+  (->> (elblog-get-index-page page-num)
+       (-map #'render-index-article)))
 
 ;; Article fetching & rendering functions
 
